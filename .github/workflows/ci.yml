@@ -1,0 +1,55 @@
+# Pipeline de Integração Contínua (CI) e Entrega Contínua (CD).
+# A cada push na branch main: verifica sintaxe, roda os testes e gera o site.
+# Se tudo passar, publica o site no GitHub Pages. Se algo falhar, nada é publicado.
+
+name: CI/CD - Situação Acadêmica
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pipeline:
+    name: Verificar, testar e gerar build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o código do repositório
+        uses: actions/checkout@v7
+
+      - name: Instalar Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Executar o pipeline (mesmo comando usado no laboratório)
+        run: node scripts/pipeline.js
+
+      - name: Guardar o site gerado como artefato
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+  deploy:
+    name: Publicar no GitHub Pages
+    needs: pipeline
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - name: Publicar o site
+        id: deployment
+        uses: actions/deploy-pages@v5
