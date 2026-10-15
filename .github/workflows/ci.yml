@@ -45,11 +45,17 @@ jobs:
       id-token: write
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url || steps.deployment_retry.outputs.page_url }}
     concurrency:
       group: pages
       cancel-in-progress: false
     steps:
-      - name: Publicar o site
+      - name: Publicar o site (tentativa 1)
         id: deployment
+        continue-on-error: true
+        uses: actions/deploy-pages@v5
+
+      - name: Publicar o site (tentativa 2)
+        id: deployment_retry
+        if: steps.deployment.conclusion == 'failure'
         uses: actions/deploy-pages@v5
