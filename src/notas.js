@@ -44,5 +44,15 @@ export function situacaoPorMedia(media) {
  *  - caso contrário, vale a situação pela média.
  */
 export function situacaoFinal(notas, frequencia) {
-  throw new Error('Regra de frequência ainda não implementada.');
+  if (frequencia < 0 || frequencia > 100) {
+    throw new RangeError('A frequência deve estar entre 0 e 100.');
+  }
+
+  // Alunos abaixo da frequência mínima são reprovados por falta.
+  if (frequencia <= FREQUENCIA_MINIMA) {
+    return 'Reprovado por falta';
+  }
+
+  const media = calcularMedia(notas);
+  return situacaoPorMedia(media);
 }
