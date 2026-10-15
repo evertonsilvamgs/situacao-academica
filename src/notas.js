@@ -49,7 +49,7 @@ export function situacaoFinal(notas, frequencia) {
   }
 
   // Alunos abaixo da frequência mínima são reprovados por falta.
-  if (frequencia <= FREQUENCIA_MINIMA) {
+  if (frequencia < FREQUENCIA_MINIMA) {
     return 'Reprovado por falta';
   }
 
